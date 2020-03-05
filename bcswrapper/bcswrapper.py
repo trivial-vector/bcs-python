@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import datetime
-import types
 
 import requests
 
@@ -76,6 +75,26 @@ class Bootcampspot:
             self._enrollment = [course['enrollmentId']
                                 for course in self.courses if course['courseId'] == self._course][0]
 
+    def _course_check(self, _course):
+        # Set courseId if not set
+        if not _course == None:
+            if _course not in self.course_list:
+                raise CourseError(_course, self.course_list)
+            else:
+                return _course
+        else:
+            return self.course
+
+    def _enrollment_check(self, _enrollment):
+        # Set enrollmentId if not set
+        if not _enrollment == None:
+            if _enrollment not in self.enrollment_list:
+                raise EnrollmentError(_enrollment, self.enrollment_list)
+            else:
+                return _enrollment
+        else:
+            return self.enrollment
+
     def _call(self, endpoint=str, body=dict):
         '''Grab response from endpoint'''
         response = requests.post(
@@ -86,40 +105,42 @@ class Bootcampspot:
     def grades(self, courseId=None, milestones=False):
         '''Grabs grades for students'''
 
-        # Set courseId if not set
-        try:
-            courseId = self.course
-        except:
-            # courseId not set and parameter not in list raise CourseError
-            if str(courseId) in self.course_list:
-                self.course = courseId
-            else:
-                raise CourseError(courseId)
+        '''API Response:
+        
+          {
+        "assignmentTitle": str,
+        "studentName": str,
+        "submitted": bool,
+        "grade": str
+        },
+        '''
+
+        courseId = self._course_check(courseId)
 
         body = {'courseId': courseId}
         response = self._call('grades', body)
         _grades = {}
 
-        def _submit_check(assignment):
-            ''' Reshape output by setting grade to unsubmitted if no submission'''
-            if not assignment['submitted']:
-                return "Unsubmitted"
+        def _value_check(grade):
+            if type(grade) != str or grade == None:
+                return "Not Submitted"
             else:
-                return assignment['grade']
+                return grade
 
         for assignment in response:
             if 'Milestone' in assignment['assignmentTitle'] and not milestones:
                 pass
             else:
-                if assignment['assignmentTitle'] not in _grades.keys():
-                    _grades[assignment['assignmentTitle']] = {}
-                else:
+                try:
                     _grades[assignment['assignmentTitle']
-                            ][assignment['studentName']] = _submit_check(assignment)
+                            ][assignment['studentName']] = _value_check(assignment['grade'])
+                except:
+                    _grades[assignment['assignmentTitle']] = {
+                        assignment['studentName']: _value_check(assignment['grade'])}
 
         return _grades
 
-    def sessions(self, enrollmentId=int, courseId=int):
+    def sessions(self, courseId=int, enrollmentId=int):
         '''Grabs Current Week's Sessions
 
         Response:
@@ -127,6 +148,8 @@ class Bootcampspot:
                 'name': 'Stuff', 'startTime': ISO8601}}
 
         '''
+        courseId = self._course_check(courseId)
+        enrollmentId = self._enrollment_check(enrollmentId)
 
         body = {'enrollmentId': enrollmentId}
 
@@ -151,7 +174,7 @@ class Bootcampspot:
 
         return sessions_list
 
-    def attendance(self, courseId=int, sessionName='all'):
+    def attendance(self, courseId=None, by='session'):
         '''Grab attendance
 
             Returns dict of {studentName: ('absences', 'pending', 'remote')}
@@ -167,24 +190,39 @@ class Bootcampspot:
          'excused': bool | |None
          }
         '''
+        courseId = self._course_check(courseId)
 
         body = {'courseId': courseId}
         response = self._call(endpoint='attendance', body=body)
 
-        def switch(pending, present, remote):
-            if pending:
-                return 'Pending'
-            elif present:
-                return 'Present'
-            elif remote:
-                return 'Remote'
-            else:
-                return 'Absent'
+        def switch(session):
+            if session['present'] == True and session['remote'] == False:
+                return 'present'
+            elif session['remote'] == True:
+                return 'remote'
+            elif session['excused'] == True and not session['excused'] == None:
+                return 'excused'
+            elif session['present'] == False and session['excused'] == False:
+                return 'absent'
 
-        attendance = {session['studentName']: switch(
-            session['pending'], session['present'], session['remote']) for session in response if session['sessionName'] == sessionName}
+        _attendance = {}
+        if by == 'session':
+            by_not = 'student'
+        else:
+            by_not = 'session'
 
-        return attendance
+        for session in response:
+            try:
+                _attendance[session[by+'Name']][session[by_not+'Name']] = switch(
+                    session)
+            except:
+                _attendance[session[by+'Name']] = {
+                    session[by_not+'Name']: switch(session)}
+
+        # {session['studentName']: {session['sessionName']: switch(
+        #     session['pending'], session['present'], session['remote'])} for session in response}
+
+        return _attendance
 
     def session_details(self, enrollmentId=int, courseId=int):
         '''Grabs info on today's class @TODO support for manual datetime entries)
