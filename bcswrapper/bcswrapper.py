@@ -140,12 +140,15 @@ class Bootcampspot:
 
         return _grades
 
-    def sessions(self, courseId=int, enrollmentId=int):
-        '''Grabs Current Week's Sessions
+    def sessions(self, courseId=None, enrollmentId=None, career_ok=False):
+        '''Grabs All Sessions
 
         Response:
-            currentWeekSessions: {'session': {
-                'name': 'Stuff', 'startTime': ISO8601}}
+            {currentWeekSessions: {'session': {
+                'name': 'Stuff', 'startTime': ISO8601,...}},
+            calendarSessions: {'session':{
+                'name':'Stuff','startTime':ISO8601,...}}
+                }
 
         '''
         courseId = self._course_check(courseId)
@@ -159,18 +162,25 @@ class Bootcampspot:
         sessions_list = []
 
         # Loop through current week sessions
-        for session in sessions['currentWeekSessions']:
+        for session in sessions['calendarSessions']:
 
             session_info = session['session']
             session_type = session['context']['contextCode']
 
             # Filter on courseId and session code (to remove career entries)
             # Pull out session name, start time (ISO 8601 with UTC TZ removed)
-            if session_info['courseId'] == courseId and session_type == 'academic':
-                sessions_list.append({'id': session_info['id'],
-                                      'name': session_info['name'],
-                                      'startTime': session_info['startTime'][:-1],
-                                      'chapter': session_info['chapter']})
+            if session_info['courseId'] == courseId:
+                if not career_ok and session_type == 'career':
+                    pass
+                else:
+                    sessions_list.append({'id': session_info['id'],
+                                          'name': session_info['name'],
+                                          'shortDescription': session_info['shortDescription'],
+                                          'longDescription': session_info['longDescription'],
+                                          'startTime': session_info['startTime'][:-1],
+                                          'chapter': session_info['chapter'],
+                                          'type': session_type
+                                          })
 
         return sessions_list
 
@@ -219,13 +229,31 @@ class Bootcampspot:
                 _attendance[session[by+'Name']] = {
                     session[by_not+'Name']: switch(session)}
 
-        # {session['studentName']: {session['sessionName']: switch(
-        #     session['pending'], session['present'], session['remote'])} for session in response}
-
         return _attendance
 
-    def session_details(self, enrollmentId=int, courseId=int):
-        '''Grabs info on today's class @TODO support for manual datetime entries)
+    def session_details(self, enrollmentId=None, courseId=None, session_id=int):
+        '''Grabs info on specific class
+        '''
+
+        '''
+        API Response Format:
+        {"session": {"session": {'id': int, 'courseId': int,
+            'shortDescription': str}, 'videobcs_rootList': []}}
+
+
+        WAIT THIS IS WHERE THE STUDENT INFO IS?!
+        '''
+
+        courseId = self._course_check(courseId)
+        enrollmentId = self._enrollment_check(enrollmentId)
+
+        body = {'sessionId': session_id}
+        session_detail_response = self._call('sessionDetail', body)
+
+        return session_detail_response['']
+
+    def session_closest(self, enrollmentId=None, courseId=None):
+        '''Grabs info on closest class info
         '''
 
         '''
@@ -234,21 +262,22 @@ class Bootcampspot:
             'shortDescription': str}, 'videobcs_rootList': []}}
         '''
 
-        cur_date = datetime.utcnow().date()
+        courseId = self._course_check(courseId)
+        enrollmentId = self._enrollment_check(enrollmentId)
+
+        now = datetime.utcnow()
         session_list = self.sessions(
             enrollmentId=enrollmentId, courseId=courseId)
 
-        current_session_id = None
+        def _closest_date(session_list, now):
+            return min(session_list, key=lambda x: abs(datetime.fromisoformat(x['startTime']) - now))
 
-        for session in session_list:
-            if datetime.fromisoformat(session['startTime']).date() == cur_date:
-                current_session_id = session['id']
-                break
+        closest_session_id = _closest_date(session_list, now)['id']
 
-        body = {'sessionId': current_session_id}
+        body = {'sessionId': closest_session_id}
         session_detail_response = self._call('sessionDetail', body)
 
-        return session_detail_response['session']
+        return session_detail_response['session']['session']
 
 
 class BCSError(Exception):

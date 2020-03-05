@@ -54,7 +54,23 @@ Setting the course will set your enrollment. Your `courseId` is the most specifi
 123456
 ```
 
-If you haven't set your course or you to use a different course, each method that requires a property as a parameter will take the course/enrollment/name as a keyword argument.
+But how do I find out my courseId? _Well since you asked_:
+
+```python
+# After class construction, call bcs.courses at any time to get a list of records
+# with courseId, enrollmentId and courseName
+
+>>> bcs.courses
+
+[{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-MW','courseId':1234, 'enrollmentId': 123456},
+{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-TTH','courseId':2345, 'enrollmentId': 234567}]
+```
+
+This is also tied, _temporarily_, to the `__repr__` function for the `Bootcampspot` class so printing your instance will give you the same functionality.
+
+Don't worry about messing it up either! If, at any time, you enter an invalid `courseId` or `enrollmentId`, the accompanying error message will give you a list of valid ids to work with.
+
+If you haven't set your course or you want to use a different course, each method that requires a property as a parameter will take the course/enrollment/name as a keyword argument.
 
 ```python
 # Setting the course isn't permanent
@@ -82,4 +98,22 @@ If you haven't set your course or you to use a different course, each method tha
     'Sterling Archer': 'Incomplete'}}
 ```
 
-To get attendance
+To get attendance, call the attendance method. Like the grades method, it will use your set `courseId` as a default. The resulting data structure (as are all the outputs) is designed to be table friendly so it can be called directly into a DataFrame instance.
+
+```python
+>>> import pandas as pd
+
+>>> df = pd.DataFrame(bcs.attendance())
+
+# Insert table here
+```
+
+**@TODO**:
+
+- sessions: all calendar sessions **prototyped**
+- session_closest: closest session to right now **prototyped**
+- session_details: info on a given session (Also all student info?!) **prototyped**
+- students: info on students for a courseId
+- weekly_feedback
+- assignments
+- tests: this was designed to be test driven but I got a little carried away last night
