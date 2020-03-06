@@ -98,7 +98,7 @@ If you haven't set your course or you want to use a different course, each metho
     'Sterling Archer': 'Incomplete'}}
 ```
 
-To get attendance, call the attendance method. Like the grades method, it will use your set `courseId` as a default. The resulting data structure (as are all the outputs) is designed to be table friendly so it can be called directly into a DataFrame instance.
+Attendance can be fetched by calling the attendance method. Like the grades method, it will use your set `courseId` as a default. The resulting data structure (as are all the outputs) is designed to be table friendly so it can be called directly into a DataFrame instance.
 
 ```python
 >>> import pandas as pd
@@ -117,3 +117,9 @@ To get attendance, call the attendance method. Like the grades method, it will u
 - weekly_feedback
 - assignments
 - tests: this was designed to be test driven but I got a little carried away last night
+
+## Known Issues:
+
+Both grades and attendance endpoints return all students from a given enrollment regardless of the chosen course. _However_, it doesn't appear as though the information from the route (letter grades or attendance values) are reported properly for students in the other courseId. This results in many false negatives for 'absent' and 'not submitted'.
+
+I'm exploring a workaround that will call the session_closest endpoint and populate a list of students for a given courseId and then I'll mask the grades and attendance based on that. It's a hack and requires 3 total api calls instead of the 1 but it seems like the only reliable way to programmatically generate a list of students to filter against.
