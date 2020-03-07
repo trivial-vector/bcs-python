@@ -9,17 +9,13 @@
 
 >>> bcs = Bootcampspot(email='johnsmith42@email.com', password='%d-%m-%Y')
 
->>> print(bcs)
-[{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-MW','courseId':1234, 'enrollmentId': 123456},
-{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-TTH','courseId':2345, 'enrollmentId': 123456}]
-
 >>> bcs.user
 {'id': 42,
  'userName': 'johnsmith42@email.com',
  'firstName': 'John',
  'lastName': 'Smith',
  'email': 'johnsmith42@email.com',
- 'githubUserName': 'MyPasswordIsMyBirthday',
+ 'githubUserName': 'MyPasswordIsStrfTime',
 
 >>> bcs.my_courses
 [1234,2345]
@@ -39,23 +35,30 @@ Setting the course will set your enrollment. Your `courseId` is the most specifi
 123456
 ```
 
-But how do I find out my courseId? _Well since you asked_:
+But how do I find out my courseId? _Well, since you asked_:
 
 ```python
-# After class construction, call bcs.courses at any time to get a list of records
-# with courseId, enrollmentId and courseName
+# You have a few options:
+# To get a nice view of your classes just print the instance
+
+>>> print(bcs)
+ |                     Class Name | courseID | enrollmentId |
+ ------------------------------------------------------------
+0|  UT-MUNICH-UXUI-12-2042-U-C-MW |     1234 |       123456 |
+1| UT-MUNICH-UXUI-12-2042-U-C-TTH |     2345 |       123456 |
+
+# Or call bcs.class_details for a pandas friendly list of records
 
 >>> bcs.class_details
-
 [{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-MW','courseId':1234, 'enrollmentId': 123456},
 {'courseName':'UT-MUNICH-UXUI-12-2042-U-C-TTH','courseId':2345, 'enrollmentId': 234567}]
 ```
 
-This is also tied, _temporarily_, to the `__repr__` function for the `Bootcampspot` class so printing your instance will give you the same functionality.
+If you happen to enter an invalid course/enrollment id, the accompanying error message will give you a list of valid ids to work with.
 
-Don't worry about messing it up either! If, at any time, you enter an invalid `courseId` or `enrollmentId`, the accompanying error message will give you a list of valid ids to work with.
+Once you've set your `bcs.course`, both that course and it's accompanying `enrollmentId` will be used as the default parameters for all method calls. That doesn't mean you can't set your own when you call a method. If you want to make a call for a different course, just enter the corresponding parameter in the method. Your set course will stay set in the background until you manually change it.
 
-If you haven't set your course or you want to use a different course, each method that requires a property as a parameter will take the course/enrollment/name as a keyword argument.
+**Note**: If you manually enter an `enrollmentId` parameter for a cohort with two classes, you will have to also enter a `courseId` parameter. The code isn't smart enough to know whether you want MW or TTH for a given cohort.
 
 ```python
 # Setting the course isn't permanent
@@ -89,19 +92,28 @@ Attendance can be fetched by calling the attendance method. Like the grades meth
 >>> import pandas as pd
 
 >>> df = pd.DataFrame(bcs.attendance())
+>>> df
 
-# Insert table here
+                          Advanced Strings     Jiving with JavaScript      SQL is Old
+Anya Novak                          present                   present          remote
+Ken Burns                           present                   present         present
+Sterling Archer                      remote                    absent          absent
+
+# This allows you to do pandas things with your api responses
+>>> df['Absences'] = df.isin(['absent']).sum(axis=1)
+>>> df
+                   Advanced Strings   Jiving with JavaScript   SQL is Old    Absences
+Anya Novak                  present                  present       remote           0
+Ken Burns                   present                  present      present           0
+Sterling Archer              remote                   absent       absent           1
+
 ```
 
 **@TODO**:
 
-- sessions: all calendar sessions **prototyped**
-- session_closest: closest session to right now **prototyped**
-- session_details: info on a given session (Also all student info?!) **prototyped**
 - students: info on students for a courseId
 - weekly_feedback
 - assignments
-- tests: this was designed to be test driven but I got a little carried away last night
 
 ## Known Issues:
 
