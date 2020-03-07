@@ -261,7 +261,8 @@ class Bootcampspot:
         to that session['startTime']
 
         Args:
-            enrollmentId: takes an integer for the enrollmentId to pass 
+            enrollmentId: (int) takes an integer for the enrollmentId to pass
+            courseId: (int) courseId for the session you'd like to retrieve.
 
         """
 
