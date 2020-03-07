@@ -43,7 +43,7 @@ But how do I find out my courseId? _Well, since you asked_:
 
 >>> print(bcs)
  |                     Class Name | courseID | enrollmentId |
- ------------------------------------------------------------
+ |----------------------------------------------------------|
 0|  UT-MUNICH-UXUI-12-2042-U-C-MW |     1234 |       123456 |
 1| UT-MUNICH-UXUI-12-2042-U-C-TTH |     2345 |       123456 |
 
@@ -105,7 +105,7 @@ Sterling Archer                      remote                    absent          a
                    Advanced Strings   Jiving with JavaScript   SQL is Old    Absences
 Anya Novak                  present                  present       remote           0
 Ken Burns                   present                  present      present           0
-Sterling Archer              remote                   absent       absent           1
+Sterling Archer              remote                   absent       absent           2
 
 ```
 
