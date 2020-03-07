@@ -1,48 +1,33 @@
 # BCS-Python
 
-## Getting started:
+## Using the Wrapper
 
-Your credentials for login are pulled from the environment variables `BCS_USER` (your email) and `BCS_PASS` (your password). You'll need to set them in your workspace.
-
-In bash/zsh:
-
-```bash
-export BCS_USER="my.email@email.com"
-export BCS_PASS="mypassword123"
-```
-
-In Windows Command Prompt:
-
-```cmd
-set BCS_USER="my.email@email.com"
-set BCS_PASS="january1st1970"
-```
-
-## Using the Wrapper:
-
-### Basic Usage
-
-With your environment variables set, your code will look something like this:
+### Getting Started
 
 ```python
 >>> from bcswrapper import Bootcampspot
 
->>> bcs = Bootcampspot()
+>>> bcs = Bootcampspot(email='johnsmith42@email.com', password='%d-%m-%Y')
 
 >>> print(bcs)
-[{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-FT','courseId':1234, 'enrollmentId': 123456}]
+[{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-MW','courseId':1234, 'enrollmentId': 123456},
+{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-TTH','courseId':2345, 'enrollmentId': 123456}]
 
 >>> bcs.user
 {'id': 42,
- 'userName': 'my.email@email.com',
+ 'userName': 'johnsmith42@email.com',
  'firstName': 'John',
- 'lastName': 'Doe',
- 'email': 'my.email@email.com',
+ 'lastName': 'Smith',
+ 'email': 'johnsmith42@email.com',
  'githubUserName': 'MyPasswordIsMyBirthday',
-...
-```
 
-### Getting Fancier
+>>> bcs.my_courses
+[1234,2345]
+
+>>> bcs.my_enrollments
+[123456]
+
+```
 
 Setting the course will set your enrollment. Your `courseId` is the most specific identifier for a course so it's a good place to start.
 
@@ -60,7 +45,7 @@ But how do I find out my courseId? _Well since you asked_:
 # After class construction, call bcs.courses at any time to get a list of records
 # with courseId, enrollmentId and courseName
 
->>> bcs.courses
+>>> bcs.class_details
 
 [{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-MW','courseId':1234, 'enrollmentId': 123456},
 {'courseName':'UT-MUNICH-UXUI-12-2042-U-C-TTH','courseId':2345, 'enrollmentId': 234567}]

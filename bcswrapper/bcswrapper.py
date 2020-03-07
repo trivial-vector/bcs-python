@@ -1,13 +1,14 @@
 import json
 import os
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Generator
 import requests
+from io import StringIO
 
 
 class Bootcampspot:
 
-    def __init__(self, email, password, student_ok=False):
+    def __init__(self, email: str, password: str):
         '''Get Auth and call `/me` endpoint for course info.'''
 
         _creds = {"email": email,
@@ -25,24 +26,55 @@ class Bootcampspot:
         me = requests.get(
             self._bcs_root + "/me", headers=self._head).json()
         self.user = me['userAccount']
-        if student_ok:
-            stu_check = None
-        else:
-            stu_check = 2
-        self.courses = [{'courseName': enrollment['course']['name'], 'courseId': enrollment['courseId'], 'enrollmentId': enrollment['id']}
-                        for enrollment in me['enrollments'] if enrollment['courseRoleId'] != stu_check]
+
+        self.class_details = [{'courseName': enrollment['course']['name'], 'courseId': enrollment['courseId'], 'enrollmentId': enrollment['id']}
+                              for enrollment in me['enrollments']]
+        self.my_courses = [course['courseId']
+                           for course in self.class_details]
+
+        self.my_enrollments = [course['enrollmentId']
+                               for course in self.class_details]
+
+        self.my_cohorts = [course['courseName']
+                           for course in self.class_details]
+
         self._course = None
         self._enrollment = None
 
-        self.course_list = [course['courseId']
-                            for course in self.courses]
-
-        self.enrollment_list = [course['enrollmentId']
-                                for course in self.courses]
-
     def __repr__(self):
-        '''Return list of course details on print'''
-        return json.dumps(self.courses)
+        '''Return course details on print'''
+
+        # Look, I was up waaaay too late and the idea popped into my head so I did it.
+        # I realize the absurdity of what I've done.  But I won't say I'm not proud of it.
+        _rows = len(self.my_courses)
+        _max_name = max([len(str(x)) for x in self.my_cohorts])
+
+        if os.isatty(0):
+            _console_width, _console_height = os.get_terminal_size()
+            if _rows+1 <= _console_height and _console_width >= _max_name+40:
+                _name_fill = ' '*(_max_name-11)
+
+                def _repr_row_gen() -> Generator:
+                    for idx, value in enumerate(reversed(self.class_details)):
+                        course_pad = ' '*(9-len(str(value['courseId'])))
+                        enroll_pad = ' '*(13-len(str(value['enrollmentId'])))
+                        name_pad = ' ' * \
+                            (_max_name-len(str(value['courseName'])))
+                        output_string = f"{idx}| {name_pad}{value['courseName']} |{course_pad}{value['courseId']} |{enroll_pad}{value['enrollmentId']} |\n"
+                        yield output_string
+                _header = f" |{_name_fill}  Class Name | courseID | enrollmentId |\n"
+                _output = StringIO("")
+                _output.write(_header)
+                _output.write(f" {'-'*(len(_header)-2)}\n")
+                for row in _repr_row_gen():
+                    _output.write(row)
+                return _output.getvalue()
+            else:
+                return json.dumps(self.class_details)
+
+        else:
+            # @TODO: Make it pretty too
+            return json.dumps(self.class_details)
 
     @property
     def enrollment(self):
@@ -50,12 +82,12 @@ class Bootcampspot:
 
     @enrollment.setter
     def enrollment(self, enrollmentId: int):
-        if enrollmentId not in self.enrollment_list:
-            msg = f'Invalid enrollmentId: {enrollmentId} not in your enrollments. Try one of these: {self.enrollment_list}'
+        if enrollmentId not in self.my_enrollments:
+            msg = f'Invalid enrollmentId: {enrollmentId} not in your enrollments. Try one of these: {self.my_enrollments}'
             raise EnrollmentError(msg)
         elif not self._course == None:
             _enroll_match = [
-                enrollment for enrollment in self.courses if course['courseId'] == self._course][0]
+                enrollment for enrollment in self.class_details if course['courseId'] == self._course][0]
             if not enrollmentId == _enroll_match['enrollmentId']:
                 msg = f"Invalid courseId: {enrollmentId} did not match enrollmentId for set courseId. Did you mean {_enroll_match['enrollmentId']}"
                 raise EnrollmentError(msg)
@@ -63,7 +95,7 @@ class Bootcampspot:
             self.enrollment = enrollmentId
 
         '''
-        if enrollmentId 
+        if enrollmentId
 
         '''
 
@@ -73,25 +105,25 @@ class Bootcampspot:
 
     @course.setter
     def course(self, courseId=int):
-        if courseId not in self.course_list:
-            msg = f'Invalid courseId: {courseId} not in your courses. Try one of these: {self.course_list}'
+        if courseId not in self.my_courses:
+            msg = f'Invalid courseId: {courseId} not in your courses. Try one of these: {self.my_courses}'
             raise CourseError(msg)
         elif not self._enrollment == None:
             _course_match = [
-                course for course in self.courses if course['enrollmentId'] == self._enrollment][0]
+                course for course in self.class_details if course['enrollmentId'] == self._enrollment][0]
             if not courseId == _course_match['courseId']:
                 msg = f"Invalid courseId: {courseId} did not match courseId for set enrollmentId. Did you mean {_course_match['courseId']}"
                 raise CourseError(msg)
         else:
             self._course = courseId
             self._enrollment = [course['enrollmentId']
-                                for course in self.courses if course['courseId'] == self._course][0]
+                                for course in self.class_details if course['courseId'] == self._course][0]
 
     def _course_check(self, _course):
         # Set courseId if not set
         if not _course == None:
-            if _course not in self.course_list:
-                msg = f'Invalid courseId: {_course} not in your courses. Try one of these: {self.course_list}'
+            if _course not in self.my_courses:
+                msg = f'Invalid courseId: {_course} not in your courses. Try one of these: {self.my_courses}'
                 raise CourseError(msg)
             else:
                 return _course
@@ -101,8 +133,8 @@ class Bootcampspot:
     def _enrollment_check(self, _enrollment):
         # Set enrollmentId if not set
         if not _enrollment == None:
-            if _enrollment not in self.enrollment_list:
-                msg = f"Invalid enrollmentId: {_enrollment} not in your enrollments. Try one of these: {self.enrollment_list}"
+            if _enrollment not in self.my_enrollments:
+                msg = f"Invalid enrollmentId: {_enrollment} not in your enrollments. Try one of these: {self.my_enrollments}"
                 raise EnrollmentError(msg)
             else:
                 return _enrollment
@@ -120,7 +152,7 @@ class Bootcampspot:
         '''Grabs grades for students'''
 
         '''API Response:
-        
+
           {
         "assignmentTitle": str,
         "studentName": str,
@@ -355,34 +387,39 @@ class EnrollmentError(BCSError):
 
 
 if __name__ == "__main__":
-    from colorama import init
-    from termcolor import colored
+    bcs = Bootcampspot(
+        email=os.environ['BCS_USER'], password=os.environ['BCS_PASS'])
+    print(bcs)
 
-    init()
+    # from colorama import init
+    # from termcolor import colored
 
-    bcs = Bootcampspot()
-    bcs.course = 1158
+    # init()
 
-    try:
-        bcs.course = 1
-    except CourseError:
-        print(colored("CourseError", 'green'))
-    try:
-        bcs.enrollment = 1
-    except EnrollmentError:
-        print(colored('EnrollmentError', 'green'))
-    try:
-        assert bcs.enrollment == 249477
-        print(colored('Auto Set Enrollment', 'green'))
-    except AssertionError:
-        print(colored('Auto Set Enrollment Failed', 'red'))
-    try:
-        assert type(list(bcs.grades().items())[0][0]) == str
-        print(colored('grades()', 'green'))
-    except AssertionError:
-        print(colored('grades()', 'red'))
-    try:
-        type(list(bcs.attendance().items())[0][0]) == str
-        print(colored('attendance()', 'green'))
-    except AssertionError:
-        print(colored('attendance()', 'red'))
+    # bcs = Bootcampspot(
+    #     email=os.environ['BCS_USER'], password=os.environ['BCS_PASS'])
+    # bcs.course = 1158
+
+    # try:
+    #     bcs.course = 1
+    # except CourseError:
+    #     print(colored("CourseError", 'green'))
+    # try:
+    #     bcs.enrollment = 1
+    # except EnrollmentError:
+    #     print(colored('EnrollmentError', 'green'))
+    # try:
+    #     assert bcs.enrollment == 249477
+    #     print(colored('Auto Set Enrollment', 'green'))
+    # except AssertionError:
+    #     print(colored('Auto Set Enrollment Failed', 'red'))
+    # try:
+    #     assert type(list(bcs.grades().items())[0][0]) == str
+    #     print(colored('grades()', 'green'))
+    # except AssertionError:
+    #     print(colored('grades()', 'red'))
+    # try:
+    #     type(list(bcs.attendance().items())[0][0]) == str
+    #     print(colored('attendance()', 'green'))
+    # except AssertionError:
+    #     print(colored('attendance()', 'red'))
