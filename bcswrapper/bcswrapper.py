@@ -6,19 +6,12 @@ import requests
 
 
 class Bootcampspot:
-    """API wrapper class
-    """
 
-    def __init__(self, student_ok=False):
-        '''Get Auth and call `/me` endpoint for course info'''
+    def __init__(self, email, password, student_ok=False):
+        '''Get Auth and call `/me` endpoint for course info.'''
 
-        # set up your login credentials
-        # as environment variables with:
-        # os.environ['BCS_USER'] = 'my.email@email.com'
-        # os.environ['BCS_PASS'] = 'mypassword123'
-
-        _creds = {"email": os.environ['BCS_USER'],
-                  "password": os.environ['BCS_PASS']}
+        _creds = {"email": email,
+                  "password": password}
 
         self._bcs_root = "https://bootcampspot.com/api/instructor/v1"
         response = requests.post(
