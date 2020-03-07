@@ -58,9 +58,21 @@ class Bootcampspot:
     @enrollment.setter
     def enrollment(self, enrollmentId: int):
         if enrollmentId not in self.enrollment_list:
-            raise EnrollmentError(enrollmentId, self.enrollment_list)
+            msg = f'Invalid enrollmentId: {enrollmentId} not in your enrollments. Try one of these: {self.enrollment_list}'
+            raise EnrollmentError(msg)
+        elif not self._course == None:
+            _enroll_match = [
+                enrollment for enrollment in self.courses if course['courseId'] == self._course][0]
+            if not enrollmentId == _enroll_match['enrollmentId']:
+                msg = f"Invalid courseId: {enrollmentId} did not match enrollmentId for set courseId. Did you mean {_enroll_match['enrollmentId']}"
+                raise EnrollmentError(msg)
         else:
             self.enrollment = enrollmentId
+
+        '''
+        if enrollmentId 
+
+        '''
 
     @property
     def course(self):
@@ -69,7 +81,14 @@ class Bootcampspot:
     @course.setter
     def course(self, courseId=int):
         if courseId not in self.course_list:
-            raise CourseError(courseId, self.course_list)
+            msg = f'Invalid courseId: {courseId} not in your courses. Try one of these: {self.course_list}'
+            raise CourseError(msg)
+        elif not self._enrollment == None:
+            _course_match = [
+                course for course in self.courses if course['enrollmentId'] == self._enrollment][0]
+            if not courseId == _course_match['courseId']:
+                msg = f"Invalid courseId: {courseId} did not match courseId for set enrollmentId. Did you mean {_course_match['courseId']}"
+                raise CourseError(msg)
         else:
             self._course = courseId
             self._enrollment = [course['enrollmentId']
@@ -79,7 +98,8 @@ class Bootcampspot:
         # Set courseId if not set
         if not _course == None:
             if _course not in self.course_list:
-                raise CourseError(_course, self.course_list)
+                msg = f'Invalid courseId: {_course} not in your courses. Try one of these: {self.course_list}'
+                raise CourseError(msg)
             else:
                 return _course
         else:
@@ -89,7 +109,8 @@ class Bootcampspot:
         # Set enrollmentId if not set
         if not _enrollment == None:
             if _enrollment not in self.enrollment_list:
-                raise EnrollmentError(_enrollment, self.enrollment_list)
+                msg = f"Invalid enrollmentId: {_enrollment} not in your enrollments. Try one of these: {self.enrollment_list}"
+                raise EnrollmentError(msg)
             else:
                 return _enrollment
         else:
@@ -231,21 +252,17 @@ class Bootcampspot:
 
         return _attendance
 
-    def session_details(self, enrollmentId=None, courseId=None, session_id=int) -> Dict:
-        '''Grabs info on specific class
-        '''
+    def session_details(self, session_id: int) -> Dict:
+        """Fetches session details for session matching session_id.
 
-        '''
-        API Response Format:
-        {"session": {"session": {'id': int, 'courseId': int,
-            'shortDescription': str}, 'videobcs_rootList': []}}
+        Calls the sessionDetail endpoint to retrieve details about a session
 
+        Args:
+            session_id (int): takes an integer corresponding to a sessionId
 
-        WAIT THIS IS WHERE THE STUDENT INFO IS?!
-        '''
-
-        courseId = self._course_check(courseId)
-        enrollmentId = self._enrollment_check(enrollmentId)
+        Returns:
+            dict: The session details for the session matching session_id
+        """
 
         body = {'sessionId': session_id}
         session_detail_response = self._call('sessionDetail', body)
@@ -261,8 +278,11 @@ class Bootcampspot:
         to that session['startTime']
 
         Args:
-            enrollmentId: (int) takes an integer for the enrollmentId to pass
-            courseId: (int) courseId for the session you'd like to retrieve.
+            enrollmentId (int): takes an integer for the enrollmentId to pass
+            courseId (int): courseId for the session you'd like to retrieve.
+
+        Returns:
+            dict: The course details for soonest class before or after current time.
 
         """
 
@@ -292,22 +312,18 @@ class BCSError(Exception):
     through it's subclasses.
 
     Args:
-        arg1 (int): Invalid courseId or enrollmentId
-        arg2 (list): Valid id integers, either course or enrollment
-        arg3 (str): 'course' or 'enrollment'
+        msg (str): The body of the error message
 
     Returns:
         __str__ method to be passed to subclasses
 
     """
 
-    def __init__(self, arg1: int, arg2: list, arg3: str):
-        self.arg1 = arg1
-        self.arg2 = arg2
-        self.arg3 = arg3
+    def __init__(self, msg):
+        self.msg = msg
 
     def __str__(self):
-        return f"Uh oh! {self.arg1} not a valid {self.arg3}Id\nTry one of these: {self.arg2}"
+        return self.msg
 
 
 class CourseError(BCSError):
@@ -317,15 +333,15 @@ class CourseError(BCSError):
     an error name can give to a problem. In this case, it's a response to a bad courseId.
 
     Args:
-        arg1 (int): a bad courseId
-        arg2 (list): valid courseId integers
+        invalid_course (int): a bad courseId
+        valid (dict): a dictionary with format {'msg': 'did you mean', 'valid_values': iterable}
 
     Raises:
-        CourseError: Invalid courseId, try one of these list[int]
+        CourseError: msg
     """
 
-    def __init__(self, arg1: int, arg2: list):
-        super().__init__(arg1, arg2, 'course')
+    def __init__(self, msg):
+        super().__init__(msg)
 
 
 class EnrollmentError(BCSError):
@@ -335,25 +351,45 @@ class EnrollmentError(BCSError):
     an error name can give to a problem. In this case, it's a response to a bad enrollmentId.
 
     Args:
-        arg1 (int): a bad courseId
-        arg2 (list): valid courseId integers
+        msg (str): A string representing the body of the error message.
 
     Raises:
-        EnrollmentError: Invalid enrollmentId, try one of these list[int]
+        EnrollmentError: msg
     """
 
-    def __init__(self, arg1: int, arg2: list):
-        super().__init__(arg1, arg2, 'enrollment')
+    def __init__(self, msg):
+        super().__init__(msg)
 
 
 if __name__ == "__main__":
+    from colorama import init
+    from termcolor import colored
+
+    init()
+
     bcs = Bootcampspot()
     bcs.course = 1158
+
     try:
         bcs.course = 1
     except CourseError:
-        print("Task Failed Successfully")
-    print(f"courseId: {bcs.course}\nenrollmentId: {bcs.enrollment}")
-
-    print(f"Grades[0]-{list(bcs.grades().items())[0][0]}")
-    print(f"Attendance[0]-{list(bcs.attendance().items())[0][0]}")
+        print(colored("CourseError", 'green'))
+    try:
+        bcs.enrollment = 1
+    except EnrollmentError:
+        print(colored('EnrollmentError', 'green'))
+    try:
+        assert bcs.enrollment == 249477
+        print(colored('Auto Set Enrollment', 'green'))
+    except AssertionError:
+        print(colored('Auto Set Enrollment Failed', 'red'))
+    try:
+        assert type(list(bcs.grades().items())[0][0]) == str
+        print(colored('grades()', 'green'))
+    except AssertionError:
+        print(colored('grades()', 'red'))
+    try:
+        type(list(bcs.attendance().items())[0][0]) == str
+        print(colored('attendance()', 'green'))
+    except AssertionError:
+        print(colored('attendance()', 'red'))
