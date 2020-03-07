@@ -387,39 +387,35 @@ class EnrollmentError(BCSError):
 
 
 if __name__ == "__main__":
+    from colorama import init
+    from termcolor import colored
+
+    init()
+
     bcs = Bootcampspot(
         email=os.environ['BCS_USER'], password=os.environ['BCS_PASS'])
-    print(bcs)
+    bcs.course = 1158
 
-    # from colorama import init
-    # from termcolor import colored
-
-    # init()
-
-    # bcs = Bootcampspot(
-    #     email=os.environ['BCS_USER'], password=os.environ['BCS_PASS'])
-    # bcs.course = 1158
-
-    # try:
-    #     bcs.course = 1
-    # except CourseError:
-    #     print(colored("CourseError", 'green'))
-    # try:
-    #     bcs.enrollment = 1
-    # except EnrollmentError:
-    #     print(colored('EnrollmentError', 'green'))
-    # try:
-    #     assert bcs.enrollment == 249477
-    #     print(colored('Auto Set Enrollment', 'green'))
-    # except AssertionError:
-    #     print(colored('Auto Set Enrollment Failed', 'red'))
-    # try:
-    #     assert type(list(bcs.grades().items())[0][0]) == str
-    #     print(colored('grades()', 'green'))
-    # except AssertionError:
-    #     print(colored('grades()', 'red'))
-    # try:
-    #     type(list(bcs.attendance().items())[0][0]) == str
-    #     print(colored('attendance()', 'green'))
-    # except AssertionError:
-    #     print(colored('attendance()', 'red'))
+    try:
+        bcs.course = 1
+    except CourseError:
+        print(colored("CourseError", 'green'))
+    try:
+        bcs.enrollment = 1
+    except EnrollmentError:
+        print(colored('EnrollmentError', 'green'))
+    try:
+        assert bcs.enrollment == 249477
+        print(colored('Auto Set Enrollment', 'green'))
+    except AssertionError:
+        print(colored('Auto Set Enrollment Failed', 'red'))
+    try:
+        assert type(list(bcs.grades().items())[0][0]) == str
+        print(colored('grades()', 'green'))
+    except AssertionError:
+        print(colored('grades()', 'red'))
+    try:
+        type(list(bcs.attendance().items())[0][0]) == str
+        print(colored('attendance()', 'green'))
+    except AssertionError:
+        print(colored('attendance()', 'red'))
