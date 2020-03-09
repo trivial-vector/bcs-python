@@ -19,7 +19,7 @@ After import, pass in your login email and password to the Bootcampspot construc
 **Note**: If you intend to publish anything using this online, _anywhere_, I would strongly suggest you do not pass the login values into the constructor as shown below. Use a hidden file or, better yet, environmental variables.
 
 ```
->>> from bcs.bootcampspot import Bootcampspot
+>>> from bcs import Bootcampspot
 
 >>> bcs = Bootcampspot(email='johnsmith42@email.com', password='%d-%m-%Y')
 
