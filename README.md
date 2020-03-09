@@ -4,7 +4,7 @@
 
 ### Getting Started
 
-After import, pass in your login email and password to the Bootcampspot constructor. You'll need some cohort information to get going. There are a few ways to get this information but let's start with the easiest.
+After import, pass in your login email and password to the Bootcampspot constructor. You'll need some cohort information to get going.
 
 ```
 >>> from bcs import Bootcampspot
@@ -34,7 +34,7 @@ Use my_enrollments for the Enrollment IDs
 [123456]
 ```
 
-To get more information about your cohorts, you have a few options:
+### To get more information about your cohorts, you have a few options:
 
 Simply printing the instance will give you a pretty view (non-interactive consoles)
 
