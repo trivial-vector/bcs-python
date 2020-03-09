@@ -2,6 +2,16 @@
 
 ## Using the Wrapper
 
+### Installation
+
+The pre-alpha release is available on [test.pypi.org](test.pypi.org/project/Bootcampspot-python/0.0.1/). It can be installed just like any other pypi package. I will migrate the release to pypi when it's closer to finished.
+
+_To install_
+
+```
+pip install -i https://test.pypi.org/simple/ Bootcampspot-python==0.0.1
+```
+
 ### Getting Started
 
 After import, pass in your login email and password to the Bootcampspot constructor.
@@ -9,7 +19,7 @@ After import, pass in your login email and password to the Bootcampspot construc
 **Note**: If you intend to use this for anything you intend to publish online, _anywhere_, I would strongly suggest you do not pass the login values into the constructor as shown below. Use a hidden file or, better yet, environmental variables.
 
 ```
->>> from bcs import Bootcampspot
+>>> from bcs.bootcampspot import Bootcampspot
 
 >>> bcs = Bootcampspot(email='johnsmith42@email.com', password='%d-%m-%Y')
 
