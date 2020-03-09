@@ -4,7 +4,9 @@
 
 ### Getting Started
 
-After import, pass in your login email and password to the Bootcampspot constructor. You'll need some cohort information to get going.
+After import, pass in your login email and password to the Bootcampspot constructor.
+
+**Note**: If you intend to use this for anything you intend to publish online, _anywhere_, I would strongly suggest you do not pass the login values into the constructor as shown below. Use a hidden file or, better yet, environmental variables.
 
 ```
 >>> from bcs import Bootcampspot
@@ -20,14 +22,14 @@ After import, pass in your login email and password to the Bootcampspot construc
  'githubUserName': 'MyPasswordIsStrfTime',
 ```
 
-Use my_courses for a simple list of Course IDs
+Use `bcs.my_courses` for a simple list of Course IDs
 
 ```
 >>> bcs.my_courses
 [1234,2345]
 ```
 
-Use my_enrollments for the Enrollment IDs
+Use `bcs.my_enrollments` for the Enrollment IDs
 
 ```
 >>> bcs.my_enrollments
@@ -46,7 +48,7 @@ Simply printing the instance will give you a pretty view (non-interactive consol
 1| UT-MUNICH-UXUI-12-2042-U-C-TTH |     2345 |       123456 |
 ```
 
-Or call bcs.class_details for a pandas friendly list of records
+Or call `bcs.class_details` for a pandas friendly list of records
 
 ```
 >>> bcs.class_details
@@ -56,7 +58,7 @@ Or call bcs.class_details for a pandas friendly list of records
 
 This is also, temporarily, the output of printing the instance in an interactive terminal, _e.g. jupyter notebook_
 
-Setting the course will set your enrollment. Your `courseId` is the most specific identifier for a course so it's a good place to start. By setting the course, you also set the enrollment for your instance.
+Setting the course will set your enrollment. Your `course_id` is the most specific identifier for a course so it's a good place to start. By setting the course, you also set the enrollment for your instance.
 
 ```
 >>> bcs.course = 1234

@@ -143,30 +143,31 @@ class Bootcampspot:
         if response.status_code == 200:
             return response.json()
 
-    def grades(self, courseId=None, milestones=False):
-        '''Grabs grades for students'''
+    def grades(self, course_id=None, milestones=False):
+        """Fetches grades for a courseId.
 
-        '''API Response:
+        Calls the sessions endpoint to retrieve details about a session
 
-          {
-        "assignmentTitle": str,
-        "studentName": str,
-        "submitted": bool,
-        "grade": str
-        },
-        '''
+        Args:
+            courseId (int): takes an integer corresponding to a courseId
+            milestones (bool): takes a boolean determining whether milestones will be included in the output
 
-        courseId = self.__course_check(courseId)
+        Returns:
+            dict: The grades, by assignment, for each student
+        """
 
-        body = {'courseId': courseId}
+        course_id, enrollment_id = self.__course_check(course_id)
+
+        body = {'courseId': course_id}
         response = self.__call('grades', body)
         grades = {}
 
         def _value_check(grade):
-            if type(grade) != str or grade == None:
-                return "Not Submitted"
-            else:
-                return grade
+            # if grade == None:
+            #     return "Not Submitted"
+            # else:
+            #     return grade
+            return grade
 
         for assignment in response:
             if not milestones and 'Milestone' in assignment['assignmentTitle']:
