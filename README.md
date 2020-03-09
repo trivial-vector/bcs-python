@@ -18,40 +18,47 @@ After import, pass in your login email and password to the Bootcampspot construc
  'lastName': 'Smith',
  'email': 'johnsmith42@email.com',
  'githubUserName': 'MyPasswordIsStrfTime',
+```
 
-# use my_courses for a simple list of Course IDs
+Use my_courses for a simple list of Course IDs
 
+```
 >>> bcs.my_courses
 [1234,2345]
+```
 
-# use my_enrollments for the Enrollment IDs
+Use my_enrollments for the Enrollment IDs
 
+```
 >>> bcs.my_enrollments
 [123456]
+```
 
-# To get more information about your cohorts, you have a few options:
+To get more information about your cohorts, you have a few options:
 
-# Simply printing the instance will give you a pretty view (non-interactive consoles)
+Simply printing the instance will give you a pretty view (non-interactive consoles)
 
+```
 >>> print(bcs)
  |                     Class Name | courseID | enrollmentId |
  |----------------------------------------------------------|
 0|  UT-MUNICH-UXUI-12-2042-U-C-MW |     1234 |       123456 |
 1| UT-MUNICH-UXUI-12-2042-U-C-TTH |     2345 |       123456 |
+```
 
-# Or call bcs.class_details for a pandas friendly list of records
+Or call bcs.class_details for a pandas friendly list of records
 
+```
 >>> bcs.class_details
 [{'courseName':'UT-MUNICH-UXUI-12-2042-U-C-MW','courseId':1234, 'enrollmentId': 123456},
 {'courseName':'UT-MUNICH-UXUI-12-2042-U-C-TTH','courseId':2345, 'enrollmentId': 234567}]
-
-# This is also, temporarily, the output of printing the instance in an interactive terminal, e.g. jupyter notebook
 ```
 
-Setting the course will set your enrollment. Your `courseId` is the most specific identifier for a course so it's a good place to start.
+This is also, temporarily, the output of printing the instance in an interactive terminal, _e.g. jupyter notebook_
+
+Setting the course will set your enrollment. Your `courseId` is the most specific identifier for a course so it's a good place to start. By setting the course, you also set the enrollment for your instance.
 
 ```
-# Setting the course will set your enrollment
 >>> bcs.course = 1234
 
 >>> bcs.enrollment
@@ -75,7 +82,6 @@ Once you've set your `bcs.course`, both that course and it's accompanying `enrol
 **Note**: If you manually enter an `enrollmentId` parameter for a cohort with two classes, you will have to also enter a `courseId` parameter. The code isn't smart enough to know whether you want MW or TTH for a given cohort.
 
 ```
-# Setting the course isn't permanent
 >>> bcs.course = 1234
 
 >>> bcs.grades(courseId=2345)
@@ -87,8 +93,11 @@ Once you've set your `bcs.course`, both that course and it's accompanying `enrol
     'Abe Lincoln': 'A+',
     'Clifford the Dog': 'B',
     'Jane Doe': 'Incomplete'}}
+```
 
-# Without that argument the method will default to bcs.course
+Without that argument the method will default to bcs.course
+
+```
 >>> bcs.grades()
 {'0: Prework':{
     'Anya Novak': 'A',
@@ -113,8 +122,11 @@ Anya Novak                          present                   present          r
 Ken Burns                           present                   present         present
 Sterling Archer                      remote                    absent          absent
 
-# This allows you to do pandas things with your api responses
+```
 
+This allows you to do pandas things with your api responses
+
+```
 >>> df['Absences'] = df.isin(['absent']).sum(axis=1)
 >>> df
                    Advanced Strings   Jiving with JavaScript   SQL is Old    Absences
@@ -128,12 +140,12 @@ The method itself sets the boolean values of the API response into categories fo
 
 **@TODO**:
 
-- [] students: info on students for a courseId
-- [] weekly_feedback
-- [] assignments
-- [] finish docstrings for sphinx
-- [] setup.py/Manifest.in
-- [] swap over to environment.yml (use this to build requirements-dev.txt)
+- [ ] students: info on students for a courseId
+- [ ] weekly_feedback
+- [ ] assignments
+- [ ] finish docstrings for sphinx
+- [ ] setup.py/Manifest.in
+- [ ] swap over to environment.yml (use this to build requirements-dev.txt)
 
 ## Known Issues:
 
