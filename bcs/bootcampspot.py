@@ -15,9 +15,9 @@ class Bootcampspot:
                         "password": password}
 
         self.__bcs_root = "https://bootcampspot.com/api/instructor/v1"
-        __login = requests.post(
+        self.__login = requests.post(
             f"{self.__bcs_root}/login", json=self.__creds)
-        self.__auth = __login.json()['authenticationInfo']['authToken']
+        self.__auth = self.__login.json()['authenticationInfo']['authToken']
         self.__head = {
             'Content-Type': 'application/json',
             'authToken': self.__auth

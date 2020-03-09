@@ -128,12 +128,12 @@ The method itself sets the boolean values of the API response into categories fo
 
 **@TODO**:
 
-- students: info on students for a courseId
-- weekly_feedback
-- assignments
-- finish docstrings for sphinx
-- setup.py/Manifest.in
-- swap over to environment.yml (use this to build requirements-dev.txt)
+- [] students: info on students for a courseId
+- [] weekly_feedback
+- [] assignments
+- [] finish docstrings for sphinx
+- [] setup.py/Manifest.in
+- [] swap over to environment.yml (use this to build requirements-dev.txt)
 
 ## Known Issues:
 
