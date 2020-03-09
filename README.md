@@ -16,7 +16,7 @@ pip install -i https://test.pypi.org/simple/ Bootcampspot-python==0.0.1
 
 After import, pass in your login email and password to the Bootcampspot constructor.
 
-**Note**: If you intend to use this for anything you intend to publish online, _anywhere_, I would strongly suggest you do not pass the login values into the constructor as shown below. Use a hidden file or, better yet, environmental variables.
+**Note**: If you intend to publish anything using this online, _anywhere_, I would strongly suggest you do not pass the login values into the constructor as shown below. Use a hidden file or, better yet, environmental variables.
 
 ```
 >>> from bcs.bootcampspot import Bootcampspot
