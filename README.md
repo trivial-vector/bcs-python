@@ -112,11 +112,11 @@ Without that argument the method will default to bcs.course
 ```
 >>> bcs.grades()
 {'0: Prework':{
-    'Anya Novak': 'A',
+    'Arthur Conan Doyle': 'A',
     'Ken Burns': 'Unsubmitted',
     'Sterling Archer': 'Incomplete'},
 '1: Hello, World':{
-    'Anya Novak': 'A+',
+    'Arthur Conan Doyle': 'A+',
     'Ken Burns': 'B',
     'Sterling Archer': 'Incomplete'}}
 ```
@@ -130,7 +130,7 @@ Attendance can be fetched by calling the attendance method. Like the grades meth
 >>> df
 
                           Advanced Strings     Jiving with JavaScript      SQL is Old
-Anya Novak                          present                   present          remote
+Arthur Conan Doyle                  present                   present          remote
 Ken Burns                           present                   present         present
 Sterling Archer                      remote                    absent          absent
 
@@ -142,7 +142,7 @@ This allows you to do pandas things with your api responses
 >>> df['Absences'] = df.isin(['absent']).sum(axis=1)
 >>> df
                    Advanced Strings   Jiving with JavaScript   SQL is Old    Absences
-Anya Novak                  present                  present       remote           0
+Arthur Conan Doyle          present                  present       remote           0
 Ken Burns                   present                  present      present           0
 Sterling Archer              remote                   absent       absent           2
 
