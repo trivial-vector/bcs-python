@@ -14,5 +14,5 @@ python:
       extra_requirements:
         - docs
     - method: setuptools
-      path: another/package
+      path: bcs
   system_packages: true
