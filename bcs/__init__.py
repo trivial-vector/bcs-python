@@ -1,3 +1,2 @@
-from .bootcampspot import Bootcampspot
-
-__version__ = '0.0.1'
+from bcs.bootcampspot import Bootcampspot
+from bcs.errors import BCSError, CourseError, EnrollmentError

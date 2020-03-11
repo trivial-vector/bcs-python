@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, Generator
 import requests
 from io import StringIO
+from .errors import CourseError, EnrollmentError
 
 
 class Bootcampspot:
@@ -143,7 +144,7 @@ class Bootcampspot:
         if response.status_code == 200:
             return response.json()
 
-    def grades(self, course_id=None, milestones=False, return_null=False):
+    def grades(self, course_id=None, milestones=False, return_null=False) -> Dict:
         """Fetches grades for a courseId.
 
         Calls the sessions endpoint to retrieve details about a session
@@ -193,7 +194,7 @@ class Bootcampspot:
 
         return grades
 
-    def sessions(self, course_id=None, enrollment_id=None, career_ok=False, orientation_ok=False):
+    def sessions(self, course_id=None, enrollment_id=None, career_ok=False, orientation_ok=False) -> Dict:
         """Fetches session for course corresponding to courseId.
 
         Calls the sessions endpoint to retrieve details about a session
@@ -263,7 +264,7 @@ class Bootcampspot:
 
         return sessions_list
 
-    def attendance(self, course_id=None, by='session'):
+    def attendance(self, course_id=None, by='session') -> Dict:
         """Fetches attendance for each student/course.
 
         Calls the attendance uri and encodes the attendance value as a category.
@@ -354,60 +355,3 @@ class Bootcampspot:
         session_detail_response = self.__call('sessionDetail', body)
 
         return session_detail_response['session']['session']
-
-
-class BCSError(Exception):
-    """Base class for BCS Errors.
-
-    Subclass of Exception built as a base class for various BCS Errors.
-    Formatting of the error message is handled here using arguments passed down
-    through it's subclasses.
-
-    Args:
-        msg (str): The body of the error message
-
-    Returns:
-        __str__ method to be passed to subclasses
-
-    """
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
-
-
-class CourseError(BCSError):
-    """Course choice not in your enrollments.
-
-    Extension of the BCSError base class, existing primarily for the clear context
-    an error name can give to a problem. In this case, it's a response to a bad courseId.
-
-    Args:
-        invalid_course (int): a bad courseId
-        valid (dict): a dictionary with format {'msg': 'did you mean', 'valid_values': iterable}
-
-    Raises:
-        CourseError: msg
-    """
-
-    def __init__(self, msg):
-        super().__init__(msg)
-
-
-class EnrollmentError(BCSError):
-    """Enrollment choice not in your enrollments.
-
-    Extension of the BCSError base class, existing primarily for the clear context
-    an error name can give to a problem. In this case, it's a response to a bad enrollmentId.
-
-    Args:
-        msg (str): A string representing the body of the error message.
-
-    Raises:
-        EnrollmentError: msg
-    """
-
-    def __init__(self, msg):
-        super().__init__(msg)
