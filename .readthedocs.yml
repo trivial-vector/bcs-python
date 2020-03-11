@@ -5,7 +5,7 @@ version: 1
 sphinx:
   configuration: docs/conf.py
 
-formats: all
+formats: [all]
 
 python:
   version: 3.7
