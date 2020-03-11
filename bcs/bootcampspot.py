@@ -143,7 +143,7 @@ class Bootcampspot:
         if response.status_code == 200:
             return response.json()
 
-    def grades(self, course_id=None, milestones=False):
+    def grades(self, course_id=None, milestones=False, return_null=False):
         """Fetches grades for a courseId.
 
         Calls the sessions endpoint to retrieve details about a session
@@ -151,6 +151,7 @@ class Bootcampspot:
         Args:
             courseId (int): takes an integer corresponding to a courseId
             milestones (bool): takes a boolean determining whether milestones will be included in the output
+            return_null (bool): takes boolean determining whether assignments with all None values are returned **i.e.** assignments yet to be assigned.
 
         Returns:
             dict: The grades, by assignment, for each student
@@ -179,6 +180,16 @@ class Bootcampspot:
                 except:
                     grades[assignment['assignmentTitle']] = {
                         assignment['studentName']: _value_check(assignment['grade'])}
+
+        if not return_null:
+            null_assignments = []
+            null_students = []
+            for assignment in grades.keys():
+                if all(grade == None for grade in grades[assignment].values()):
+                    null_assignments.append(assignment)
+
+            for assignment in null_assignments:
+                del grades[assignment]
 
         return grades
 
@@ -400,38 +411,3 @@ class EnrollmentError(BCSError):
 
     def __init__(self, msg):
         super().__init__(msg)
-
-
-if __name__ == "__main__":
-    from colorama import init
-    from termcolor import colored
-
-    init()
-
-    bcs = Bootcampspot(
-        email=os.environ['BCS_USER'], password=os.environ['BCS_PASS'])
-    bcs.course = 1158
-
-    try:
-        bcs.course = 1
-    except CourseError:
-        print(colored("CourseError", 'green'))
-    try:
-        bcs.enrollment = 1
-    except EnrollmentError:
-        print(colored('EnrollmentError', 'green'))
-    try:
-        assert bcs.enrollment == 249477
-        print(colored('Auto Set Enrollment', 'green'))
-    except AssertionError:
-        print(colored('Auto Set Enrollment Failed', 'red'))
-    try:
-        assert type(list(bcs.grades().items())[0][0]) == str
-        print(colored('grades()', 'green'))
-    except AssertionError:
-        print(colored('grades()', 'red'))
-    try:
-        type(list(bcs.attendance().items())[0][0]) == str
-        print(colored('attendance()', 'green'))
-    except AssertionError:
-        print(colored('attendance()', 'red'))
