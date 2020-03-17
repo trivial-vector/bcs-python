@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from typing import Dict, Generator
+from typing import Dict, List
 import requests
 from io import StringIO
 from .errors import CourseError, EnrollmentError
@@ -24,12 +24,12 @@ class Bootcampspot:
             'authToken': self.__auth
         }
         # Get relevent values
-        me = requests.get(
+        self.__me = requests.get(
             self.__bcs_root + "/me", headers=self.__head).json()
-        self.user = me['userAccount']
+        self.user = self.__me['userAccount']
 
         self.class_details = [{'courseName': enrollment['course']['name'], 'courseId': enrollment['courseId'], 'enrollmentId': enrollment['id']}
-                              for enrollment in me['enrollments']]
+                              for enrollment in self.__me['enrollments']]
         self.my_courses = [course['courseId']
                            for course in self.class_details]
 
@@ -264,7 +264,7 @@ class Bootcampspot:
 
         return sessions_list
 
-    def attendance(self, course_id=None, by='session') -> Dict:
+    def attendance(self, course_id=None, by='student') -> Dict:
         """Fetches attendance for each student/course.
 
         Calls the attendance uri and encodes the attendance value as a category.
@@ -291,10 +291,11 @@ class Bootcampspot:
                 return 'absent'
 
         attendance = {}
-        by_not = 'student'
 
         if by == 'student':
             by_not = 'session'
+        else:
+            by_not = 'student'
 
         for session in response:
             try:
@@ -303,6 +304,14 @@ class Bootcampspot:
             except:
                 attendance[session[by+'Name']] = {
                     session[by_not+'Name']: switch(session)}
+
+        null_sessions = []
+        for k in attendance.keys():
+            if all(att == None for att in attendance[k].values()):
+                null_sessions.append(k)
+
+        for session in null_sessions:
+            del attendance[session]
 
         return attendance
 
@@ -347,7 +356,7 @@ class Bootcampspot:
             course_id=course_id)
 
         def closest_date(session_list: list, now):
-            return min(session_list, key=lambda x: abs(datetime.fromisoformat(x['startTime']) - now))
+            return min(session_list, key=lambda x: abs(datetime.fromisoformat(x['start_time']) - now))
 
         closest_session_id = closest_date(session_list, now)['id']
 
@@ -355,3 +364,57 @@ class Bootcampspot:
         session_detail_response = self.__call('sessionDetail', body)
 
         return session_detail_response['session']['session']
+
+    def feedback(self, course_id=None) -> Dict:
+        """Fetches weekly feedback."""
+
+        course_id, enrollment_id = self.__course_check(course_id)
+        body = {'courseId': course_id}
+        response = self.__call(endpoint='weeklyFeedback', body=body)
+
+        q_text = response['surveyDefinition']['steps']
+        feedback_struct = {question['stepNumber']: question['text'].split(
+            '(')[0][:-1] for question in q_text}
+
+        def process(inp):
+            try:
+                ignore_list = ['n/a', 'na', 'none', 'no']
+                answer = student['answers'][inp]['answer']['value']
+                if answer.lower() == any(ignore_list):
+                    return None
+                else:
+                    return answer
+            except TypeError:
+                return None
+
+        feedback = {}
+        for student in response['submissions']:
+            feedback[student['username']] = {
+                'timestamp': student['date']
+            }
+            for idx, question in enumerate(feedback_struct):
+                feedback[student['username']
+                         ][feedback_struct[str(idx+1)]] = process(idx)
+
+        return feedback
+
+    @property
+    def feedback_chapter(self, course_id=None) -> str:
+        """Fetches week of feedback"""
+
+        course_id, _ = self.__course_check(course_id)
+        body = {'courseId': course_id}
+        response = self.__call(endpoint='weeklyFeedback', body=body)
+
+        session_list = self.sessions(
+            course_id=course_id)
+
+        def closest_date(session_list: list, time):
+            return min(session_list, key=lambda x: abs(datetime.fromisoformat(x['start_time']) - time))
+
+        feedback_date = datetime.fromisoformat(
+            response['submissions'][0]['date'][:-1])
+        feedback_chapter = closest_date(session_list, feedback_date)[
+            'chapter'].split('.')[0]
+
+        return feedback_chapter

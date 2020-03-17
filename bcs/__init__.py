@@ -1,2 +1,2 @@
-from bcs.bootcampspot import Bootcampspot
-from bcs.errors import BCSError, CourseError, EnrollmentError
+from .bootcampspot import Bootcampspot
+from .errors import BCSError, CourseError, EnrollmentError
