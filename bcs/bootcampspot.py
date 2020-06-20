@@ -415,6 +415,6 @@ class Bootcampspot:
         feedback_date = datetime.fromisoformat(
             response['submissions'][0]['date'][:-1].split('T')[0])
         feedback_chapter = closest_date(session_list, feedback_date)[
-            'chapter']
+            'chapter'].split('.')[0]
 
         return feedback_chapter
