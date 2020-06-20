@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="Bootcampspot-python",
-    version="0.0.1",
+    version="0.0.2",
     author="Justin Parker",
     author_email="justin.parker.12@gmail.com",
     description=("Python wrapper for Bootcampspot API"),

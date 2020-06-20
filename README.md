@@ -9,7 +9,7 @@ The pre-alpha release is available on [test.pypi.org](test.pypi.org/project/Boot
 _To install_
 
 ```
-pip install -i https://test.pypi.org/simple/ Bootcampspot-python==0.0.1
+pip install -i https://test.pypi.org/simple/ Bootcampspot-python==0.0.2
 ```
 
 ### Getting Started
@@ -153,7 +153,7 @@ The method itself sets the boolean values of the API response into categories fo
 **@TODO**:
 
 - [ ] students: info on students for a courseId
-- [ ] weekly_feedback
+- [ x ] weekly_feedback
 - [ ] assignments
 - [ ] finish docstrings for sphinx
 - [ ] setup.py/Manifest.in
