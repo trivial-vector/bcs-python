@@ -26,10 +26,10 @@ class Bootcampspot:
         # Get relevent values
         self.__me = requests.get(
             self.__bcs_root + "/me", headers=self.__head).json()
-        self.user = self.__me['userAccount']
+        self.user = self.__me['userInfo']
 
         self.class_details = [{'courseName': enrollment['course']['name'], 'courseId': enrollment['courseId'], 'enrollmentId': enrollment['id']}
-                              for enrollment in self.__me['enrollments']]
+                              for enrollment in self.__me['Enrollments']]
         self.my_courses = [course['courseId']
                            for course in self.class_details]
 
@@ -413,8 +413,8 @@ class Bootcampspot:
             return min(session_list, key=lambda x: abs(datetime.fromisoformat(x['start_time']) - time))
 
         feedback_date = datetime.fromisoformat(
-            response['submissions'][0]['date'][:-1])
+            response['submissions'][0]['date'][:-1].split('T')[0])
         feedback_chapter = closest_date(session_list, feedback_date)[
-            'chapter'].split('.')[0]
+            'chapter']
 
         return feedback_chapter
