@@ -2,8 +2,8 @@ from setuptools import find_packages, setup
 
 
 setup(
-    name="Bootcampspot-python",
-    version="0.0.2",
+    name="bcs-python",
+    version="0.0.3",
     author="Justin Parker",
     author_email="justin.parker.12@gmail.com",
     description=("Python wrapper for Bootcampspot API"),
@@ -13,7 +13,7 @@ setup(
     packages=find_packages("."),
     long_description="",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",

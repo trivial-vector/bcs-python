@@ -4,12 +4,12 @@
 
 ### Installation
 
-The pre-alpha release is available on [test.pypi.org](test.pypi.org/project/Bootcampspot-python/0.0.1/). It can be installed just like any other pypi package. I will migrate the release to pypi when it's closer to finished.
+The pre-alpha release is available on [test.pypi.org](https://pypi.org/project/bcs-python/0.0.3/). It can be installed just like any other pypi package.
 
 _To install_
 
 ```
-pip install -i https://test.pypi.org/simple/ Bootcampspot-python==0.0.2
+pip install pip install bcs-python==0.0.3
 ```
 
 ### Getting Started
