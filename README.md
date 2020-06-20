@@ -9,7 +9,7 @@ The pre-alpha release is available on [pypi.org](https://pypi.org/project/bcs-py
 _To install_
 
 ```
-pip install pip install bcs-python==0.0.3
+pip install bcs-python==0.0.3
 ```
 
 ### Getting Started
