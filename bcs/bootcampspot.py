@@ -390,7 +390,7 @@ class Bootcampspot:
         feedback = {}
         for student in response['submissions']:
             feedback[student['username']] = {
-                'timestamp': student['date']
+                'timestamp': datetime.fromisoformat(student['date'].split('T')[0])
             }
             for idx, question in enumerate(feedback_struct):
                 feedback[student['username']
