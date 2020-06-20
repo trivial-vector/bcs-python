@@ -4,7 +4,7 @@
 
 ### Installation
 
-The pre-alpha release is available on [test.pypi.org](https://pypi.org/project/bcs-python/0.0.3/). It can be installed just like any other pypi package.
+The pre-alpha release is available on [pypi.org](https://pypi.org/project/bcs-python/0.0.3/). It can be installed just like any other pypi package.
 
 _To install_
 
